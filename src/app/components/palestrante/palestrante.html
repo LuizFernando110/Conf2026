@@ -1,0 +1,26 @@
+<div class="palestrantes-container">
+    <h2>Palestrantes Angular Conf 2026</h2>
+
+    <div class="grid-palestrantes">
+        @for (palestrante of palestrantes; track palestrante.id) {
+        <div class="card-palestrante">
+            <img [src]="palestrante.fotoUrl" [alt]="palestrante.nome" class="avatar">
+            <h3>{{ palestrante.nome }}</h3>
+
+            @if (palestrante.empresa) {
+                <p class="empresa">{{ palestrante.empresa }}</p>
+            }
+
+            <p class="bio">{{ palestrante.bio }}</p>
+
+            <div class="tags">
+                @for (tech of palestrante.tecnologias; track tech) {
+                <span class="tag">{{ tech }}</span>
+                }
+            </div>
+        </div>
+        } @empty {
+        <p>Nenhum palestrante encontrado ou carregando dados...</p>
+        }
+    </div>
+</div>

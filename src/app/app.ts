@@ -1,9 +1,10 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { PalestrantesComponent } from './components/palestrante/palestrante';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, PalestrantesComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
