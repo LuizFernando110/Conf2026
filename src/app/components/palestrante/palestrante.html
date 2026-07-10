@@ -1,8 +1,18 @@
 <div class="palestrantes-container">
     <h2>Palestrantes Angular Conf 2026</h2>
 
+    <div class="search-box">
+        <input 
+            type="text" 
+            placeholder="Pesquisar palestrante por nome..." 
+            [value]="termoBusca()"
+            (input)="onInput($event)"
+            class="search-input"
+        />
+    </div>
+
     <div class="grid-palestrantes">
-        @for (palestrante of palestrantes; track palestrante.id) {
+        @for (palestrante of palestrantes(); track palestrante.id) {
         <div class="card-palestrante">
             <img [src]="palestrante.fotoUrl" [alt]="palestrante.nome" class="avatar">
             <h3>{{ palestrante.nome }}</h3>
@@ -20,7 +30,7 @@
             </div>
         </div>
         } @empty {
-        <p>Nenhum palestrante encontrado ou carregando dados...</p>
+        <p>Nenhum palestrante encontrado para a busca realizada.</p>
         }
     </div>
 </div>

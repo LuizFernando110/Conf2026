@@ -1,8 +1,9 @@
-import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { takeUntilDestroyed as takeUntilDestroyedRx } from '@angular/core/rxjs-interop';
+import { Component, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { PalestranteService } from '../../services/palestrante/palestrante';
 import { Palestrante } from '../../services/palestrante/palestrante.model';
-import { ChangeDetectorRef, Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
 
 @Component({
   selector: 'app-palestrantes',
@@ -11,31 +12,25 @@ import { ChangeDetectorRef, Component, inject, OnInit, PLATFORM_ID } from '@angu
   templateUrl: './palestrante.html',
   styleUrls: ['./palestrante.scss'],
 })
-export class PalestrantesComponent implements OnInit {
+export class PalestrantesComponent {
   private palestranteService = inject(PalestranteService);
-  private platformId = inject(PLATFORM_ID);
-  private cdr = inject(ChangeDetectorRef);
 
-  private buscarPalestrantes$ = this.palestranteService.buscarPalestrantes().pipe(
-    takeUntilDestroyedRx() 
+  termoBusca = signal<string>('');
+
+  palestrantes = toSignal(
+    toObservable(this.termoBusca).pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      switchMap((termo) => {
+        console.log(`[Busca Otimizada] Disparando requisição HTTP para o termo: "${termo}"`);
+        return this.palestranteService.buscarPalestrantes(termo);
+      }),
+    ),
+    { initialValue: [] as Palestrante[] },
   );
 
-  palestrantes: Palestrante[] = [];
-
-  ngOnInit(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      setTimeout(() => {
-        this.buscarPalestrantes$.subscribe({
-          next: (dadosFiltrados) => {
-            console.log('Dados processados e filtrados chegando no componente:', dadosFiltrados);
-            this.palestrantes = dadosFiltrados;
-            this.cdr.detectChanges();
-          },
-          error: (erro) => {
-            console.error('Erro crítico não tratado:', erro);
-          }
-        });
-      }, 0);
-    }
+  onInput(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    this.termoBusca.set(inputElement.value);
   }
 }

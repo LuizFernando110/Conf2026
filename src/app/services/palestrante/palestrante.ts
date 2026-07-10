@@ -12,27 +12,23 @@ export class PalestranteService {
 
   private apiUrl = 'http://localhost:3001/api/palestrantes';
 
-
-  buscarPalestrantes(): Observable<Palestrante[]> {
+  buscarPalestrantes(termo: string = ''): Observable<Palestrante[]> {
     return this.http.get<Palestrante[]>(this.apiUrl).pipe(
-      
       tap((dados) => {
-        console.log(`[Auditoria] Quantidade total de palestrantes recebidos da API: ${dados?.length || 0}`);
+        console.log(`[Auditoria] API entregou ${dados?.length || 0} palestrantes brutos.`);
       }),
-
       map((dados) => {
         const lista = Array.isArray(dados) ? dados : [];
-        
-        return lista.filter(p => p.empresa?.toLowerCase() === 'google');
+
+        if (termo) {
+          return lista.filter((p) => p.nome.toLowerCase().includes(termo.toLowerCase()));
+        }
+        return lista;
       }),
-
       catchError((erro) => {
-        console.error('[Fallback] A API falhou ou está fora do ar!', erro.message);
-        console.log('[Fallback] Fornecendo um array vazio amigável para a aplicação não travar.');
-        
+        console.error('[Fallback] Erro na busca:', erro.message);
         return of([]);
-      })
-
+      }),
     );
   }
 }
